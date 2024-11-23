@@ -1,0 +1,49 @@
+name: deploy stock back
+on: [push]
+env:
+  IMAGE: stock-proxy
+  VERSION: 3.3.1
+jobs:
+
+  create-folder:
+    name: create folder
+    runs-on: ubuntu-latest
+    steps:
+      - name: execute commands
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "Création du dossier sur le serveur.."
+            mkdir -p /opt/applications/stock/${{env.IMAGE}}
+            echo "Liste des fichiers :"
+            ls -al /opt/applications/stock/
+
+  run-container:
+    name: generer un container
+    runs-on: ubuntu-latest
+    needs: [ 'create-folder' ]
+    steps:
+      - name: cloner le repertoire
+        uses: actions/checkout@master
+      - name: copy file via ssh key
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: 22
+          source: "compose.yml"
+          target: /opt/applications/stock/${{env.IMAGE}}
+      - name: execute commands to run container
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: 22
+          script: |
+            docker compose -f /opt/applications/stock/${{env.IMAGE}}/compose.yml up -d

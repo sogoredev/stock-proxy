@@ -1,0 +1,17 @@
+services:
+  proxy:
+    image: nginx:1.23.3-alpine
+    container_name: stock-proxy
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - ./db-stock.conf:/etc/nginx/conf.d/db-stock.conf
+      - ./api-stock.conf:/etc/nginx/conf.d/api-stock.conf
+#      - ./web-stock.conf:/etc/nginx/conf.d/web-stock.conf
+    networks:
+      - applications-network
+networks:
+  applications-network:
+    external: true
+    name: applications-network
