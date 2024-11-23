@@ -1,4 +1,4 @@
-name: deploy stock back
+name: deploy stock proxy
 on: [push]
 env:
   IMAGE: stock-proxy
@@ -38,6 +38,24 @@ jobs:
           port: 22
           source: "compose.yml"
           target: /opt/applications/stock/${{env.IMAGE}}
+      - name: ensure docker network exists
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: 22
+          script: |
+            docker network ls | grep applications-network || docker network create applications-network
+      - name: validate compose file
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: 22
+          script: |
+            docker compose -f /opt/applications/stock/${{env.IMAGE}}/compose.yml config
       - name: execute commands to run container
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -47,3 +65,13 @@ jobs:
           port: 22
           script: |
             docker compose -f /opt/applications/stock/${{env.IMAGE}}/compose.yml up -d
+      - name: list running containers
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "Liste des conteneurs en cours d'exécution :"
+            docker ps
