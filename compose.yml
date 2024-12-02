@@ -4,7 +4,7 @@ services:
     container_name: stock-proxy
     restart: always
     ports:
-      - 80:81
+      - 81:81
     volumes:
       - ./db-stock.conf:/etc/nginx/conf.d/db-stock.conf
       - ./api-stock.conf:/etc/nginx/conf.d/api-stock.conf
