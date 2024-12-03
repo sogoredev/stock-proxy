@@ -8,7 +8,7 @@ services:
     volumes:
       - ./db-stock.conf:/etc/nginx/conf.d/db-stock.conf
       - ./api-stock.conf:/etc/nginx/conf.d/api-stock.conf
-#       - ./web-stock.conf:/etc/nginx/conf.d/web-stock.conf
+#      - ./web-stock.conf:/etc/nginx/conf.d/web-stock.conf
     networks:
       - applications-network
 networks:
